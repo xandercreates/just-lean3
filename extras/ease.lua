@@ -1,27 +1,60 @@
 ---@alias multiple number | Vector | Matrix
 
 ---@alias validInterps: string
+---| linear
+---| sine
+---| quad
+---| cubic
+---| quart
+---| quint
+---| expo
+---| circ
+---| back
+
+
+
+---@alias linear
 ---| "linear"
+
+---@alias sine
 ---| "inSine"
 ---| "outSine"
 ---| "inOutSine"
+
+---@alias quad
 ---| "inQuad"
 ---| "outQuad"
 ---| "inOutQuad"
+
+---@alias cubic
 ---| "inCubic"
 ---| "outCubic"
 ---| "inOutCubic"
+
+---@alias quart
 ---| "inQuart"
 ---| "outQuart"
+---| "inOutQuart"
+
+---@alias quint
 ---| "inQuint"
 ---| "outQuint"
 ---| "inOutQuint"
+
+---@alias expo
 ---| "inExpo"
 ---| "outExpo"
 ---| "inOutExpo"
+
+---@alias circ
 ---| "inCirc"
 ---| "outCirc"
 ---| "inOutCirc"
+
+---@alias back
+---| "inBack"
+---| "outBack"
+---| "inOutBack"
 
 ---@alias ease fun(a: multiple, b: multiple, t: number, s: validInterps)
 
@@ -51,6 +84,9 @@ local sin, cos, lerp, map, pi = math.sin, math.cos, math.lerp, math.map, math.pi
 ---@field inCirc fun(a: multiple, b: multiple, t: number)
 ---@field outCirc fun(a: multiple, b: multiple, t: number)
 ---@field inOutCirc fun(a: multiple, b: multiple, t: number)
+---@field inBack fun(a: multiple, b: multiple, t: number) | <<deprecated>>
+---@field outBack fun(a: multiple, b: multiple, t: number) | <<deprecated>>
+---@field inOutBack fun(a: multiple, b: multiple, t: number) | <<deprecated>>
 ---@field setting fun(self?: self, x: string, y: boolean)
 ---@field __ease fun(self?: self, a: multiple, b: multiple, t: number, s: validInterps|string)
 ---@field exposeEase boolean
@@ -59,7 +95,7 @@ local sin, cos, lerp, map, pi = math.sin, math.cos, math.lerp, math.map, math.pi
 local easings = {}
 easings.exposeEase = false --adds the local ease function to mathlib
 easings.exposeLib = true --allows library to be used without require(), might still break some scripts due to load order.
-easings.test = false
+easings.test = true
 
 ---@return multiple
 function easings.linear(a,b,t)
@@ -193,6 +229,36 @@ function easings.inOutCirc(a,b,t)
     return map(v, 0, 1, a, b)
 end
 
+---@deprecated
+---@return multiple
+function easings.inBack(a,b,t)
+    local c1 = 1.70158
+    local c3 = c1 + 1
+    local v = c3 * t * t * t - c1 * t * t
+    return map (v, 0, 1, a, b)
+end
+
+---@deprecated
+---@return multiple
+function easings.outBack(a,b,t)
+    local c1 = 1.70158
+    local c3 = c1 + 1
+    local v = 1 + c3 * ((t - 1)^3) + c1 * ((t - 1) ^ 2)
+    return map(v, 0, 1, a, b)
+end
+
+---@deprecated
+---@return multiple
+function easings.inOutBack(a,b,t)
+    local c1 = 1.70158
+    local c2 =  c1 * 1.525
+    ---return x < 0.5
+  --? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+  --: (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
+    local v = t < 0.5 and (math.pow(2 * t, 2) * ((c2 + 1) * 2 * t - c2)) / 2 or (math.pow(2 * t - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
+    return map(v, 0, 1, a, b)
+end
+
 ---@return nil
 function easings:setting(x, y)
     self[x] = y or not self[x]
@@ -205,7 +271,7 @@ end
 
 
 local function ease(a, b, t, s)
-    easings:__ease(a,b,t,s)
+    return easings:__ease(a,b,t,s)
 end
 
 
@@ -228,16 +294,15 @@ local task = wrld:newItem("test"):setItem("stone")
 
 function events.tick()
     task:setVisible(easings.test)
-    if not easings.test then return end
     _pos:set(pos)
-    pos:set(ease(pos, player:getPos()+(player:getLookDir():normalize()*2)+vec(0,player:getEyeHeight(),0), 0.7, "inQuint"))
+    pos:set(ease(pos, player:getPos()+(player:getLookDir():normalize()*2)+vec(0,player:getEyeHeight(),0), 0.4, "inOutCirc"))
 end
 
 
 function events.world_render(delta)
-    if not easings.test then return end
     if delta == 1 then return end
     local fPos = lerp(_pos, pos, delta)
+    --log(fPos)
     task:setPos(fPos*16)
 end
 
