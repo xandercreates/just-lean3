@@ -84,18 +84,18 @@ local sin, cos, lerp, map, pi = math.sin, math.cos, math.lerp, math.map, math.pi
 ---@field inCirc fun(a: multiple, b: multiple, t: number)
 ---@field outCirc fun(a: multiple, b: multiple, t: number)
 ---@field inOutCirc fun(a: multiple, b: multiple, t: number)
----@field inBack fun(a: multiple, b: multiple, t: number) | <<deprecated>>
----@field outBack fun(a: multiple, b: multiple, t: number) | <<deprecated>>
----@field inOutBack fun(a: multiple, b: multiple, t: number) | <<deprecated>>
+---@field inBack fun(a: multiple, b: multiple, t: number)
+---@field outBack fun(a: multiple, b: multiple, t: number)
+---@field inOutBack fun(a: multiple, b: multiple, t: number)
 ---@field setting fun(self?: self, x: string, y: boolean)
----@field __ease fun(self?: self, a: multiple, b: multiple, t: number, s: validInterps|string)
+---@field ease fun(self?: self, a: multiple, b: multiple, t: number, s: validInterps|string)
 ---@field exposeEase boolean
 ---@field exposeLib boolean
 ---@field test boolean
 local easings = {}
 easings.exposeEase = false --adds the local ease function to mathlib
-easings.exposeLib = true --allows library to be used without require(), might still break some scripts due to load order.
-easings.test = true
+easings.exposeLib = false --allows library to be used without require(), might still break some scripts due to load order.
+easings.crazyEase = false
 
 ---@return multiple
 function easings.linear(a,b,t)
@@ -193,20 +193,25 @@ function easings.inOutQuint(a,b,t)
     return map(v, 0, 1, a, b)
 end
 
+local _self = easings
+
 ---@return multiple
 function easings.inExpo(a,b,t)
+    if not _self.crazyEase then return lerp(a,b,t) end
     local v = t == 0 and 0 or 2^(10 * t - 10)
     return map(v, 0, 1, a, b)
 end
 
 ---@return multiple
 function easings.outExpo(a,b,t)
+    if not _self.crazyEase then return lerp(a,b,t) end
     local v = t == 1 and 1 or 1 - 2^(-10 * t)
     return map(v, 0, 1, a, b)
 end
 
 ---@return multiple
 function easings.inOutExpo(a,b,t)
+    if not _self.crazyEase then return lerp(a,b,t) end
     local v = t == 0 and 0 or t == 1 and 1 or t < 0.5 and (2^(20 * t - 10) / 2) or (2^(-20*t+10)) / 2
     return map(v, 0, 1, a, b)
 end
@@ -232,6 +237,7 @@ end
 ---@deprecated
 ---@return multiple
 function easings.inBack(a,b,t)
+    if not _self.crazyEase then return lerp(a,b,t) end
     local c1 = 1.70158
     local c3 = c1 + 1
     local v = c3 * t * t * t - c1 * t * t
@@ -241,6 +247,7 @@ end
 ---@deprecated
 ---@return multiple
 function easings.outBack(a,b,t)
+    if not _self.crazyEase then return lerp(a,b,t) end
     local c1 = 1.70158
     local c3 = c1 + 1
     local v = 1 + c3 * ((t - 1)^3) + c1 * ((t - 1) ^ 2)
@@ -250,6 +257,7 @@ end
 ---@deprecated
 ---@return multiple
 function easings.inOutBack(a,b,t)
+    if not _self.crazyEase then return lerp(a,b,t) end
     local c1 = 1.70158
     local c2 =  c1 * 1.525
     ---return x < 0.5
@@ -265,13 +273,13 @@ function easings:setting(x, y)
 end
 
 ---@return multiple
-function easings:__ease(a,b,t,s)
+function easings:ease(a,b,t,s)
     return self[s](a,b,t)
 end
 
 
 local function ease(a, b, t, s)
-    return easings:__ease(a,b,t,s)
+    return easings:ease(a,b,t,s)
 end
 
 
@@ -286,24 +294,6 @@ function events.world_tick()
     else
         _G.easings = nil
     end
-end
-
-local _pos, pos = vec(0,0,0), vec(0,0,0)
-local wrld = models:newPart("World", "WORLD")
-local task = wrld:newItem("test"):setItem("stone")
-
-function events.tick()
-    task:setVisible(easings.test)
-    _pos:set(pos)
-    pos:set(ease(pos, player:getPos()+(player:getLookDir():normalize()*2)+vec(0,player:getEyeHeight(),0), 0.4, "inOutCirc"))
-end
-
-
-function events.world_render(delta)
-    if delta == 1 then return end
-    local fPos = lerp(_pos, pos, delta)
-    --log(fPos)
-    task:setPos(fPos*16)
 end
 
 return easings
