@@ -16,7 +16,12 @@
 ---| "inQuint"
 ---| "outQuint"
 ---| "inOutQuint"
-
+---| "inExpo"
+---| "outExpo"
+---| "inOutExpo"
+---| "inCirc"
+---| "outCirc"
+---| "inOutCirc"
 
 ---@alias ease fun(a: multiple, b: multiple, t: number, s: validInterps)
 
@@ -40,6 +45,14 @@ local sin, cos, lerp, map, pi = math.sin, math.cos, math.lerp, math.map, math.pi
 ---@field inQuint fun(a: multiple, b: multiple, t: number)
 ---@field outQuint fun(a: multiple, b: multiple, t: number)
 ---@field inOutQuint fun(a: multiple, b: multiple, t: number)
+---@field inExpo fun(a: multiple, b: multiple, t: number)
+---@field outExpo fun(a: multiple, b: multiple, t: number)
+---@field inOutExpo fun(a: multiple, b: multiple, t: number)
+---@field inCirc fun(a: multiple, b: multiple, t: number)
+---@field outCirc fun(a: multiple, b: multiple, t: number)
+---@field inOutCirc fun(a: multiple, b: multiple, t: number)
+---@field setting fun(self?: self, x: string, y: boolean)
+---@field __ease fun(self?: self, a: multiple, b: multiple, t: number, s: validInterps|string)
 ---@field exposeEase boolean
 ---@field exposeLib boolean
 ---@field test boolean
@@ -144,20 +157,55 @@ function easings.inOutQuint(a,b,t)
     return map(v, 0, 1, a, b)
 end
 
----@param x string
----@param y boolean
+---@return multiple
+function easings.inExpo(a,b,t)
+    local v = t == 0 and 0 or 2^(10 * t - 10)
+    return map(v, 0, 1, a, b)
+end
+
+---@return multiple
+function easings.outExpo(a,b,t)
+    local v = t == 1 and 1 or 1 - 2^(-10 * t)
+    return map(v, 0, 1, a, b)
+end
+
+---@return multiple
+function easings.inOutExpo(a,b,t)
+    local v = t == 0 and 0 or t == 1 and 1 or t < 0.5 and (2^(20 * t - 10) / 2) or (2^(-20*t+10)) / 2
+    return map(v, 0, 1, a, b)
+end
+
+---@return multiple
+function easings.inCirc(a,b,t)
+    local v = 1 - math.sqrt(1 - (t^2))
+    return map(v, 0, 1, a, b)
+end
+
+---@return multiple
+function easings.outCirc(a,b,t)
+    local v = math.sqrt(1 - ((t - 1)^2))
+    return map(v, 0, 1, a, b)
+end
+
+---@return multiple
+function easings.inOutCirc(a,b,t)
+    local v = t < 0.5 and ((1 - math.sqrt(1 - (2 * t)^2)) / 2) or ((math.sqrt(1 - (-2 * t + 2)^2) + 1) / 2)
+    return map(v, 0, 1, a, b)
+end
+
 ---@return nil
 function easings:setting(x, y)
     self[x] = y or not self[x]
 end
 
----@param a multiple
----@param b multiple
----@param t number
----@param s validInterps
 ---@return multiple
+function easings:__ease(a,b,t,s)
+    return self[s](a,b,t)
+end
+
+
 local function ease(a, b, t, s)
-    return easings[s](a, b, t) --[[@as number | Vector| Matrix]]
+    easings:__ease(a,b,t,s)
 end
 
 
