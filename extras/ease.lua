@@ -21,7 +21,7 @@
 ---@alias ease fun(a: multiple, b: multiple, t: number, s: validInterps)
 
 
-local sin, cos, abs, lerp, map, pi = math.sin, math.cos, math.abs, math.lerp, math.map, math.pi
+local sin, cos, lerp, map, pi = math.sin, math.cos, math.lerp, math.map, math.pi
 
 ---@class easings: mathlib
 ---@field linear fun(a: multiple,b: multiple,t: number)
