@@ -41,9 +41,12 @@ local sin, cos, abs, lerp, map, pi = math.sin, math.cos, math.abs, math.lerp, ma
 ---@field outQuint fun(a: multiple, b: multiple, t: number)
 ---@field inOutQuint fun(a: multiple, b: multiple, t: number)
 ---@field exposeEase boolean
+---@field exposeLib boolean
+---@field test boolean
 local easings = {}
 easings.exposeEase = false --adds the local ease function to mathlib
 easings.exposeLib = true --allows library to be used without require(), might still break some scripts due to load order.
+easings.test = false
 
 ---@return multiple
 function easings.linear(a,b,t)
@@ -176,12 +179,15 @@ local wrld = models:newPart("World", "WORLD")
 local task = wrld:newItem("test"):setItem("stone")
 
 function events.tick()
+    task:setVisible(easings.test)
+    if not easings.test then return end
     _pos:set(pos)
     pos:set(ease(pos, player:getPos()+(player:getLookDir():normalize()*2)+vec(0,player:getEyeHeight(),0), 0.7, "inQuint"))
 end
 
 
 function events.world_render(delta)
+    if not easings.test then return end
     if delta == 1 then return end
     local fPos = lerp(_pos, pos, delta)
     task:setPos(fPos*16)
