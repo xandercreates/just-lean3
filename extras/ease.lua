@@ -1,4 +1,3 @@
----@alias multiple number | Vector | Matrix
 
 ---@alias validInterps: string
 ---| linear
@@ -62,33 +61,33 @@
 local sin, cos, lerp, map, pi = math.sin, math.cos, math.lerp, math.map, math.pi
 
 ---@class easings: mathlib
----@field linear fun(a: multiple,b: multiple,t: number)
----@field inSine fun(a: multiple, b: multiple, t: number)
----@field outSine fun(a: multiple, b: multiple, t: number)
----@field inOutSine fun(a: multiple, b: multiple, t: number)
----@field inQuad fun(a: multiple, b: multiple, t: number)
----@field outQuad fun(a: multiple, b: multiple, t: number)
----@field inOutQuad fun(a: multiple, b: multiple, t: number)
----@field inCubic fun(a: multiple, b: multiple, t: number)
----@field outCubic fun(a: multiple, b: multiple, t: number)
----@field inOutCubic fun(a: multiple, b: multiple, t: number)
----@field inQuart fun(a: multiple, b: multiple, t: number)
----@field outQuart fun(a: multiple, b: multiple, t: number)
----@field inOutQuart fun(a: multiple, b: multiple, t: number)
----@field inQuint fun(a: multiple, b: multiple, t: number)
----@field outQuint fun(a: multiple, b: multiple, t: number)
----@field inOutQuint fun(a: multiple, b: multiple, t: number)
----@field inExpo fun(a: multiple, b: multiple, t: number)
----@field outExpo fun(a: multiple, b: multiple, t: number)
----@field inOutExpo fun(a: multiple, b: multiple, t: number)
----@field inCirc fun(a: multiple, b: multiple, t: number)
----@field outCirc fun(a: multiple, b: multiple, t: number)
----@field inOutCirc fun(a: multiple, b: multiple, t: number)
----@field inBack fun(a: multiple, b: multiple, t: number)
----@field outBack fun(a: multiple, b: multiple, t: number)
----@field inOutBack fun(a: multiple, b: multiple, t: number)
+---@field linear fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inSine fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outSine fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutSine fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inQuad fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outQuad fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutQuad fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inCubic fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outCubic fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutCubic fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inQuart fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outQuart fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutQuart fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inQuint fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outQuint fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutQuint fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inExpo fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outExpo fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutExpo fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inCirc fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outCirc fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutCirc fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inBack fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field outBack fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
+---@field inOutBack fun(a: number | Vector | Matrix,b: number | Vector | Matrix,t: number)
 ---@field setting fun(self?: self, x: string, y: boolean)
----@field ease fun(self?: self, a: multiple, b: multiple, t: number, s: validInterps|string)
+---@field ease fun(self?: self, a: number | Vector | Matrix, b: number | Vector | Matrix, t: number, s: validInterps|string)
 ---@field exposeEase boolean
 ---@field exposeLib boolean
 ---@field test boolean
@@ -271,12 +270,14 @@ end
 function easings:setting(x, y)
     self[x] = y or not self[x]
 end
-
+---@param a multiple
+---@param b multiple
+---@param t number
+---@param s validInterps
 ---@return multiple
 function easings:ease(a,b,t,s)
     return self[s](a,b,t)
 end
-
 
 local function ease(a, b, t, s)
     return easings:ease(a,b,t,s)
